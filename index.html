@@ -13,11 +13,12 @@
 <body class="min-h-screen bg-gray-100 text-gray-800">
   <div class="max-w-7xl mx-auto p-6">
     <header class="mb-6 flex items-center justify-between">
-      <h1 class="text-2xl font-bold tracking-tight">🎓 Student ID Card Generator BY Spencer XD</h1>
+      <h1 class="text-2xl font-bold tracking-tight">Student ID Card Generator - Spencerxd</h1>
       <p class="text-sm text-gray-500">Single-page app • HTML Canvas • Tailwind CSS</p>
     </header>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <!-- Left: Form -->
       <section class="bg-white rounded-2xl shadow p-5 lg:p-6">
         <h2 class="text-lg font-semibold mb-4">Student Details</h2>
         <form id="idForm" class="space-y-4" onsubmit="event.preventDefault(); generateCard();">
@@ -25,13 +26,25 @@
             <label for="fullName" class="block text-sm font-medium mb-1">Full Name</label>
             <input id="fullName" type="text" class="w-full rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Your Name" />
           </div>
-          <div>
-            <label for="memberId" class="block text-sm font-medium mb-1">Member ID</label>
-            <input id="memberId" type="text" class="w-full rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="ID-0000" />
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label for="memberId" class="block text-sm font-medium mb-1">Student ID</label>
+              <input id="memberId" type="text" class="w-full rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="ID-0000" />
+            </div>
+            <div>
+              <label for="phone" class="block text-sm font-medium mb-1">Phone No.</label>
+              <input id="phone" type="text" class="w-full rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="0000000000" />
+            </div>
           </div>
-          <div>
-            <label for="phone" class="block text-sm font-medium mb-1">Phone</label>
-            <input id="phone" type="text" class="w-full rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="0000000000" />
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label for="dob" class="block text-sm font-medium mb-1">Birth Date</label>
+              <input id="dob" type="date" class="w-full rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+            </div>
+            <div>
+              <label for="expiry" class="block text-sm font-medium mb-1">Expiry Date</label>
+              <input id="expiry" type="date" class="w-full rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+            </div>
           </div>
           <div>
             <span class="block text-sm font-medium mb-1">Student Photo</span>
@@ -47,6 +60,7 @@
         </form>
       </section>
 
+      <!-- Right: Live Preview -->
       <section class="bg-white rounded-2xl shadow p-5 lg:p-6 flex flex-col">
         <h2 class="text-lg font-semibold">Live Preview</h2>
         <div class="mt-4 flex-1 grid place-items-center">
@@ -56,10 +70,11 @@
     </div>
   </div>
 
-  <!-- Your fixed background template next to index.html -->
-  <img id="templateImage" alt="ID Card Template" class="hidden" src="Gemini_Generated_Image_1ohrgm1ohrgm1ohr.png" />
+  <!-- Replace src with your new INGOUDE template filename placed next to this HTML -->
+  <img id="templateImage" alt="ID Card Template" class="hidden" src="idcard.jpg" />
 
   <script>
+    // ---------- Utilities ----------
     function roundRect(ctx, x, y, w, h, r){
       const rad = Math.min(r, w/2, h/2);
       ctx.beginPath();
@@ -79,6 +94,7 @@
       ctx.drawImage(img, sx, sy, sw, sh, dx, dy, dW, dH);
     }
 
+    // ---------- Elements ----------
     const canvas = document.getElementById('cardCanvas');
     const ctx = canvas.getContext('2d');
     const templateImg = document.getElementById('templateImage');
@@ -86,18 +102,22 @@
     const fullNameEl = document.getElementById('fullName');
     const memberIdEl = document.getElementById('memberId');
     const phoneEl = document.getElementById('phone');
+    const dobEl = document.getElementById('dob');
+    const expiryEl = document.getElementById('expiry');
     const photoInputEl = document.getElementById('photoInput');
     const photoFilenameEl = document.getElementById('photoFilename');
     const downloadBtn = document.getElementById('downloadBtn');
 
-    // New layout (just photo, name, memberId, phone)
+    // ---------- Layout tuned for your INGOUDE template ----------
+    // Percent values so it works across different pixel sizes of the same template.
     const LAYOUT = {
-      photoPct:   { x: 0.115, y: 0.365, w: 0.305, h: 0.50, radius: 0.025 },
-      namePct:    { x: 0.580, y: 0.410 },
-      memberPct:  { x: 0.630, y: 0.540 },
-      phonePct:   { x: 0.590, y: 0.660 },
+      photoPct:   { x: 0.110, y: 0.365, w: 0.300, h: 0.460, radius: 0.025 },
+      namePct:    { x: 0.580, y: 0.435 },
+      studentPct: { x: 0.630, y: 0.510 },
+      birthPct:   { x: 0.625, y: 0.585 },
+      expiryPct:  { x: 0.640, y: 0.655 },
+      phonePct:   { x: 0.620, y: 0.730 }
     };
-
     function pxFromPct(obj){
       return {
         x: obj.x * canvas.width,
@@ -120,7 +140,7 @@
       ctx.clearRect(0,0,canvas.width,canvas.height);
       ctx.drawImage(templateImg, 0, 0, canvas.width, canvas.height);
 
-      // Photo
+      // Photo clipped to rounded rect so ANY aspect ratio fits the frame neatly
       const P = pxFromPct(LAYOUT.photoPct);
       ctx.save();
       roundRect(ctx, P.x, P.y, P.w, P.h, P.radius);
@@ -128,23 +148,27 @@
       if (uploadedPhoto) drawImageCover(ctx, uploadedPhoto, P.x, P.y, P.w, P.h);
       ctx.restore();
 
-      // Text
-      const name = fullNameEl.value.trim() || 'Name';
-      const member = memberIdEl.value.trim() || 'Member ID';
-      const phone = phoneEl.value.trim() || 'Phone';
+      // Draw text values next to the printed labels on the template
+      const name    = fullNameEl.value.trim() || '';
+      const student = memberIdEl.value.trim() || '';
+      const birth   = dobEl.value ? new Date(dobEl.value).toLocaleDateString() : '';
+      const expiry  = expiryEl.value ? new Date(expiryEl.value).toLocaleDateString() : '';
+      const phone   = phoneEl.value.trim() || '';
 
       ctx.fillStyle = '#0b1a3a';
-      ctx.font = `${Math.round(canvas.height*0.045)}px Arial Black, Arial, sans-serif`;
+      ctx.textBaseline = 'alphabetic';
+
+      // Name (slightly bigger)
+      ctx.font = `${Math.round(canvas.height*0.040)}px Arial, sans-serif`;
       const NP = pxFromPct(LAYOUT.namePct);
-      ctx.fillText(name, NP.x, NP.y);
+      if (name) ctx.fillText(name, NP.x, NP.y);
 
-      ctx.fillStyle = '#0b1a3a';
-      ctx.font = `${Math.round(canvas.height*0.035)}px Arial, sans-serif`;
-      const MP = pxFromPct(LAYOUT.memberPct);
-      ctx.fillText(member, MP.x, MP.y);
-
-      const PP = pxFromPct(LAYOUT.phonePct);
-      ctx.fillText(phone, PP.x, PP.y);
+      // Other lines
+      ctx.font = `${Math.round(canvas.height*0.034)}px Arial, sans-serif`;
+      const SP = pxFromPct(LAYOUT.studentPct); if (student) ctx.fillText(student, SP.x, SP.y);
+      const BP = pxFromPct(LAYOUT.birthPct);   if (birth)   ctx.fillText(birth,   BP.x, BP.y);
+      const EP = pxFromPct(LAYOUT.expiryPct);  if (expiry)  ctx.fillText(expiry,  EP.x, EP.y);
+      const PP = pxFromPct(LAYOUT.phonePct);   if (phone)   ctx.fillText(phone,   PP.x, PP.y);
 
       downloadBtn.classList.remove('hidden');
     }
@@ -157,6 +181,7 @@
       document.body.appendChild(a); a.click(); a.remove();
     }
 
+    // Photo upload
     photoInputEl.addEventListener('change', (e)=>{
       const file = e.target.files?.[0]; if (!file) return;
       photoFilenameEl.textContent = file.name;
@@ -165,9 +190,22 @@
       reader.readAsDataURL(file);
     });
 
-    let t; [fullNameEl,memberIdEl,phoneEl].forEach(el=>{
+    // Live preview while typing
+    let t; [fullNameEl, memberIdEl, phoneEl, dobEl, expiryEl].forEach(el=>{
       el.addEventListener('input', ()=>{ clearTimeout(t); t = setTimeout(draw, 200); });
+    });
+
+    // ALT + Click to log coordinates (for fine-tuning positions)
+    canvas.addEventListener('click', (e)=>{
+      if (!e.altKey) return;
+      const r = canvas.getBoundingClientRect();
+      const x = Math.round((e.clientX - r.left) * (canvas.width / r.width));
+      const y = Math.round((e.clientY - r.top) * (canvas.height / r.height));
+      const xPct = +(x/canvas.width).toFixed(4);
+      const yPct = +(y/canvas.height).toFixed(4);
+      console.log(`Canvas click → x:${x} y:${y} | xPct:${xPct} yPct:${yPct}`);
     });
   </script>
 </body>
 </html>
+
